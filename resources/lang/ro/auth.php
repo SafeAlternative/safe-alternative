@@ -16,11 +16,10 @@ return [
     'failed' => 'These credentials do not match our records.',
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
-    'register' => 'Register',
-    'username'   => 'Username',
-    'phone'     => 'Phone',
-    'name'      => 'Name',
+    'register' => 'Inregistrare',
+    'username'  => 'Utilizator',
+    'phone'     => 'Telefon',
+    'name'      => 'Nume si prenume',
     'site'      => 'URL site',
-    'company'   => 'Company',
-
+    'company'   => 'Companie / Firma',
 ];

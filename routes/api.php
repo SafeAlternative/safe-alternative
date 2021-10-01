@@ -20,8 +20,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('fan/generateAwb', [FanController::class, 'generateAwb']);
-Route::get('fan/printAwb', [FanController::class, 'printAwb']);
 
 
 Route::group(['middleware' => 'auth:sanctum'], function(){
