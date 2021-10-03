@@ -1,9 +1,10 @@
 <?php
 
 use App\Http\Controllers\API\FanController;
+use App\Http\Controllers\API\CargusController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\API\AuthApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,10 +25,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['middleware' => 'auth:sanctum'], function(){
     
-        Route::get('fan/generateAwb', [FanController::class, 'generateAwb']);
-        Route::get('fan/printAwb', [FanController::class, 'printAwb']);
+        Route::post('fan/generateAwb', [FanController::class, 'generateAwb']);
+        Route::post('fan/printAwb', [FanController::class, 'printAwb']);
+
+        Route::get('cargus/generateAwb', [CargusController::class, 'generateAwb']);
+        Route::get('cargus/printAwb', [CargusController::class, 'printAwb']);
 
     });
 
 
-Route::post("login",[UserController::class,'index']);
+Route::post("login",[AuthApiController::class,'getToken']);
