@@ -31,9 +31,10 @@ Route::group(['middleware' => 'auth:sanctum'], function(){
         Route::post('fan/printAwb', [FanController::class, 'printAwb']);
         Route::post('fan/deleteAwb', [FanController::class, 'deleteAwb']);
 
-
-        Route::get('cargus/generateAwb', [CargusController::class, 'generateAwb']);
-        Route::get('cargus/printAwb', [CargusController::class, 'printAwb']);
+        Route::post('cargus/login', [CargusController::class, 'login']);
+        Route::post('cargus/generateAwb', [CargusController::class, 'generateAwb']);
+        Route::post('cargus/printAwb', [CargusController::class, 'printAwb']);
+        Route::post('cargus/deleteAwb', [CargusController::class, 'deleteAwb']);
 
     });
 
