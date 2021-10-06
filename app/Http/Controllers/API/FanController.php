@@ -13,7 +13,6 @@ class FanController extends Controller
         return 'Hello from FanController';
     }
 
-    
     ////////////////////////////////////////////////////////////
     // ACCOUNT CLIENTS /////////////////////////////////////////
     ////////////////////////////////////////////////////////////
@@ -48,7 +47,6 @@ class FanController extends Controller
             'client_id' => $client_id,
             'user_pass' => $user_pass
         ]);
-
 
         Storage::disk('local')->put('export_servicii_integrat.csv', $response_services_list);
 
@@ -115,14 +113,8 @@ class FanController extends Controller
         $header = "Tip serviciu,Banca,IBAN,Nr. Plicuri,Nr. Colete,Greutate,Plata expeditie,Ramburs(bani),Plata ramburs la,Valoare declarata,Persoana contact expeditor,Observatii,Continut,Nume destinatar,Persoana contact,Telefon,Fax,Email,Judet,Localitatea,Strada,Nr,Cod postal,Bloc,Scara,Etaj,Apartament,Inaltime pachet,Latime pachet,Lungime pachet,Restituire,Centru Cost,Optiuni,Packing,Date personale";
         $msgData = "$tip_serviciu,,,$nr_plicuri,$nr_colete,$greutate,$plata_expeditie,$ramburs,$plata_ramburs_la,$valoare_declarata,$persoana_contact_expeditor,$observatii,$continut,$nume_destinatar,$persoana_contact,$telefon,$fax,$email,$judet,$localitate,$strada,$nr,$cod_postal,$bloc,$scara,$etaj,$apartament,$inaltime_pachet,$latime_pachet,$lungime_pachet,$restituire,$centru_cost,$optiuni,$packing,$date_personale";
 
-
         Storage::disk('local')->put('fan_courier_request.csv', $header . PHP_EOL . $msgData);
-        //file_put_contents('fan_courier_request.csv', $header . PHP_EOL . $msgData);
-        
-        //$fisier = Storage::disk('local')->get('fan_courier_request.csv');
         $fisier = fopen(Storage::path('fan_courier_request.csv'), 'r');
-
-
 
         $response = Http::asMultipart()->post($api_url, [
             'username'  => $username,
@@ -166,8 +158,6 @@ class FanController extends Controller
         return $response;
     }
 
-
-
     ////////////////////////////////////////////////////////////
     // STERGERE AWB ////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
@@ -181,7 +171,6 @@ class FanController extends Controller
 
         $AWB     = $request->AWB;
         
-
         $response = Http::asForm()->post($api_url, [
             'username'  => $username,
             'client_id' => $client_id,

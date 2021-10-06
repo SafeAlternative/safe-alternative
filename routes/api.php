@@ -25,16 +25,17 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['middleware' => 'auth:sanctum'], function(){
     
-        Route::post('fan/getAccount', [FanController::class, 'getAccount']);
-        Route::post('fan/getServices', [FanController::class, 'getServices']);      
+        Route::post('fan/getAccount', [FanController::class, 'getAccount']);     
         Route::post('fan/generateAwb', [FanController::class, 'generateAwb']);
         Route::post('fan/printAwb', [FanController::class, 'printAwb']);
         Route::post('fan/deleteAwb', [FanController::class, 'deleteAwb']);
+        Route::post('fan/getServices', [FanController::class, 'getServices']); 
 
         Route::post('cargus/login', [CargusController::class, 'login']);
-        Route::post('cargus/generateAwb', [CargusController::class, 'generateAwb']);
+        Route::post('cargus/generateAwb', [CargusController::class, 'generateAwb']);    
         Route::post('cargus/printAwb', [CargusController::class, 'printAwb']);
         Route::post('cargus/deleteAwb', [CargusController::class, 'deleteAwb']);
+        Route::post('cargus/pickupLocations', [CargusController::class, 'pickupLocations']);  
 
     });
 
