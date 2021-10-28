@@ -9,8 +9,40 @@ use Illuminate\Support\Facades\Storage;
 
 class FanController extends Controller
 {
-    public function index() {
-        return 'Hello from FanController';
+
+    
+    ////////////////////////////////////////////////////////////
+    // VALIDATE AUTH //////////////////////////////////////////
+    ////////////////////////////////////////////////////////////
+    public function validateAuth(Request $request) {
+
+        $api_url = 'https://www.selfawb.ro/get_account_clients_integrat.php';
+
+        $username  = $request->username;
+        $user_pass = $request->user_pass;
+    
+        $response = Http::asForm()->post($api_url, [
+            'username'  => $username,
+            'user_pass' => $user_pass
+        ]);
+
+        
+        $response_j = json_decode($response);
+
+        //var_dump(response($response_j->error));
+        if(isset($response_j->error)) {
+            return response([
+                'success'    => 0,
+                'message'   => 'Eroare la logare',
+                
+            ], 200);
+
+        }
+        return response([
+            'success'    => 1,
+            'message'   => 'Autentificare reusita',
+            
+        ], 200);
     }
 
     ////////////////////////////////////////////////////////////
@@ -122,7 +154,20 @@ class FanController extends Controller
             'user_pass' => $user_pass,
             'fisier'    => $fisier
         ]);
-        return $response;
+
+        $response_list = explode(',', $response);
+     
+        if(is_numeric($response_list[2])) {
+            return response([
+                'success'   => 1,
+                'message'   => $response_list[2] ,
+            ], 200);
+        }
+        return response([
+            'success'   => 0,
+            'message'   => 'Eroare la generare' .$response,          
+        ], 200);
+
     }
 
     ////////////////////////////////////////////////////////////
@@ -154,8 +199,9 @@ class FanController extends Controller
             'page'      => $page,
             'label'     => $label
         ]);
-
-        return $response;
+        
+        return $response;      
+        
     }
 
     ////////////////////////////////////////////////////////////

@@ -25,6 +25,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::group(['middleware' => 'auth:sanctum'], function(){
     
+    
+        Route::post('fan/validateAuth', [FanController::class, 'validateAuth']);  
         Route::post('fan/getAccount', [FanController::class, 'getAccount']);     
         Route::post('fan/generateAwb', [FanController::class, 'generateAwb']);
         Route::post('fan/printAwb', [FanController::class, 'printAwb']);
