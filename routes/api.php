@@ -1,10 +1,14 @@
 <?php
 
-use App\Http\Controllers\API\FanController;
-use App\Http\Controllers\API\CargusController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthApiController;
+
+use App\Http\Controllers\API\FanController;
+use App\Http\Controllers\API\CargusController;
+
+use App\Http\Controllers\API\PluginController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -43,3 +47,5 @@ Route::group(['middleware' => 'auth:sanctum'], function(){
 
 
 Route::post("login",[AuthApiController::class,'getToken']);
+Route::get("plugin/safe-alternative-plugin.json",[PluginController::class,'getJson']);
+Route::get("plugin/download/safe-alternative-plugin",[PluginController::class,'getPlugin']);
