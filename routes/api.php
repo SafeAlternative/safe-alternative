@@ -49,3 +49,4 @@ Route::group(['middleware' => 'auth:sanctum'], function(){
 Route::post("login",[AuthApiController::class,'getToken']);
 Route::get("plugin/safe-alternative-plugin.json",[PluginController::class,'getJson']);
 Route::get("plugin/download/safe-alternative-plugin",[PluginController::class,'getPlugin']);
+Route::get("plugin/changelog.txt",[PluginController::class,'changelog']);

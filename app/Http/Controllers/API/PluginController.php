@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\File;
 
 class PluginController extends Controller
 {
@@ -29,7 +30,7 @@ class PluginController extends Controller
         $response = [
             'name'      => 'Safe Alternative',
             'slug'      => 'safe-alternative-plugin', 
-            'version'   => '2.15.5',
+            'version'   => '2.15.6',
             'download_url'  => 'http://localhost/safe-alternative/public/api/plugin/download/safe-alternative-plugin',
             'homepage'  => 'http://127.0.0.1:8000',
             'requires'  => '4.9.9',
@@ -37,7 +38,7 @@ class PluginController extends Controller
             'author'    => 'Safe Alternative SRL',
             'author_homepage' => 'http://127.0.0.1:8000',
             'section'   => ['description' => 'Plugin-ul Safe Alternative All-in-one - Generare AWB si Metode de livrare',
-                            'changelog'   => 'http://localhost/safe-alternative/public/plugin-changelog.txt'
+                            'changelog'   => 'http://localhost/safe-alternative/public/api/plugin/changelog.txt'
                             ]
         ];
 
@@ -67,4 +68,12 @@ class PluginController extends Controller
         $zip->close();
         return response()->download($zip_file);   
     }
+
+    public function changelog() {
+
+        $path = storage_path('plugins/changelog.txt');
+        echo  File::get($path);
+        
+    }
+    
 }
