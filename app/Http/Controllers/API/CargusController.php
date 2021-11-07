@@ -15,7 +15,7 @@ class CargusController extends Controller
     ////////////////////////////////////////////////////////////
     // LOGIN  //////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////
-    public function login(Request $request){
+    public function validateAuth(Request $request){
 
         $api_url = 'https://urgentcargus.azure-api.net/api/LoginUser';
         $subscriptionKey = $request->subscriptionKey;
@@ -30,7 +30,23 @@ class CargusController extends Controller
             'Password' => $password
         ]);
 
-        return trim($response,'"');
+
+        if($response->getStatusCode()!=200) {
+            return response([
+                'success'   => 0,
+                'message'   => 'Eroare la logare',
+                'token'     => '',
+                
+            ], 200);
+
+        }
+        return response([
+            'success'   => 1,
+            'message'   => 'Autentificare reusita',
+            'token'     => trim($response,'"'),
+        ], 200);
+
+        
     }
 
     ////////////////////////////////////////////////////////////
@@ -40,7 +56,7 @@ class CargusController extends Controller
         
         $api_url = 'https://urgentcargus.azure-api.net/api/Awbs';
         $subscriptionKey = $request->subscriptionKey;
-        $token =  'Bearer '.$request->token;
+        $token =  'Bearer '.$request->token_cargus;
 
         $awb['Sender']['LocationId'] = $request->Sender['LocationId'];
         $awb['Recipient']['Name'] = $request->Recipient['Name'];
@@ -81,7 +97,16 @@ class CargusController extends Controller
             'Authorization' => $token
         ])->post($api_url, $awb);
 
-        return $response;
+        if(is_numeric(trim($response,'"'))) {
+            return response([
+                'success'   => 1,
+                'message'   => trim($response,'"') ,
+            ], 200);
+        }
+        return response([
+            'success'   => 0,
+            'message'   => 'Eroare la generare' .$response,          
+        ], 200);
     }
 
     ////////////////////////////////////////////////////////////
@@ -90,7 +115,7 @@ class CargusController extends Controller
     public function printAwb(Request $request) {
 
         $subscriptionKey = $request->subscriptionKey;
-        $token =  'Bearer '.$request->token;
+        $token =  'Bearer '.$request->token_cargus;
 
         $queryString['barCodes'] = $request->barCodes;
         $queryString['type'] = $request->type;
@@ -116,7 +141,7 @@ class CargusController extends Controller
 
         $barCode = $request->barCode;
         $subscriptionKey = $request->subscriptionKey;
-        $token =  'Bearer '.$request->token;
+        $token =  'Bearer '.$request->token_cargus;
         $api_url = 'https://urgentcargus.azure-api.net/api/Awbs?barCode='.$barCode;
         
         $response = Http::withHeaders([
@@ -134,7 +159,7 @@ class CargusController extends Controller
 
         $api_url = 'https://urgentcargus.azure-api.net/api/PickupLocations';
         $subscriptionKey = $request->subscriptionKey;
-        $token =  'Bearer '.$request->token;
+        $token =  'Bearer '.$request->token_cargus;
 
         $response = Http::withHeaders([
             'Ocp-Apim-Subscription-Key' => $subscriptionKey,
