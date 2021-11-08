@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+
 
 class FanController extends Controller
 {
@@ -157,10 +159,13 @@ class FanController extends Controller
 
         $response_list = explode(',', $response);
      
+        $userId = Auth::id();
+
         if(is_numeric($response_list[2])) {
+
             return response([
                 'success'   => 1,
-                'message'   => $response_list[2] ,
+                'message'   => $response_list[2] .$userId,
             ], 200);
         }
         return response([

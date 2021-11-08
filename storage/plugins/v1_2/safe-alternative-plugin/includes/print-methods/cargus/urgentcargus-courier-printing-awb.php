@@ -2,8 +2,8 @@
 
 $dir = plugin_dir_path(__FILE__);
 
-include_once($dir.'urgent_cargus.class.php');
-include_once($dir.'courier.class.php');
+include_once($dir.'courierCargusSafe.class.php');
+include_once($dir.'courierCargus.class.php');
 
 class CargusAWB {
 
@@ -30,7 +30,7 @@ class CargusAWB {
                 
     	$url = get_option ( 'uc_url' );
     	$key = get_option ( 'uc_key' );
-    	$this->urgent = new UrgentCargusAPI ( $url, $key );
+    	$this->urgent = new CourierCargus( $url, $key );
     }
 
     function add_plugin_page_settings(){
@@ -52,6 +52,7 @@ class CargusAWB {
         add_option( 'uc_key', 'c76c9992055e4e419ff7fa953c3e4569');
         add_option( 'uc_username', '');
         add_option( 'uc_password', '');
+        add_option( 'uc_token', '');
         add_option( 'uc_punct_ridicare', '0');    
         add_option( 'uc_price_table_id', '0');    
         add_option( 'uc_nr_colete', '1');
@@ -81,6 +82,7 @@ class CargusAWB {
         register_setting( 'urgent-cargus-plugin-settings', 'uc_key' );
         register_setting( 'urgent-cargus-plugin-settings', 'uc_username' );
         register_setting( 'urgent-cargus-plugin-settings', 'uc_password' );
+        register_setting( 'urgent-cargus-plugin-settings', 'uc_token' );        
         register_setting( 'urgent-cargus-plugin-settings', 'uc_punct_ridicare' );
         register_setting( 'urgent-cargus-plugin-settings', 'uc_price_table_id' );
         register_setting( 'urgent-cargus-plugin-settings', 'uc_nr_colete' );
@@ -659,38 +661,32 @@ class CargusAWB {
             $awbsDetails = apply_filters('safealternative_awb_details', $awbsDetails, 'UrgentCargus', $order);
     
             $trimite_mail = get_option ( 'uc_trimite_mail');
-            $jsonAwb = json_encode($awbsDetails);
+            
 
-            $UserName = rawurlencode(get_option ( 'uc_username' ));
-            $Password = rawurlencode(get_option ( 'uc_password' ));
-            $user_safealternative = rawurlencode(get_option ( 'user_safealternative' ));
-            $password_safealternative = rawurlencode(get_option ( 'password_safealternative' ));
             
-            $courier = new SafealternativeUCClass();
-            $result = $courier->callMethod(SAFEALTERNATIVE_API_URL."/shipping/urgentcargus/generateAwb/".$user_safealternative."/".$password_safealternative."/".$UserName."/".$Password, $jsonAwb, 'POST');
-            
-            if ($result['status']!="200") {
-                set_transient('urgent_account_settings', $result['message'], MONTH_IN_SECONDS);
-            } else {
-                if ( !is_numeric(json_decode($result['message'])) ) {
-                    set_transient('urgent_account_settings', $result['message'], MONTH_IN_SECONDS);
-                } else {
-                    $awb=json_decode($result['message']);
+            $awbsDetails['token'] =  get_option('token');
+            $awbsDetails['token_cargus'] =  get_option('uc_token');
+            $awbsDetails['subscriptionKey']  = get_option('uc_key');
+
+            $courier  = new CourierCargusSafe();
+            $response = $courier->callMethod("generateAwb", $awbsDetails, 'POST'); 
+
+            if ($response['success']) {
+                if ( !is_numeric(json_decode($response['message'])) ) {
+                    
+                } 
+                
+                else {
+
+                    $awb=json_decode($response['message']);
+
                     if ($trimite_mail=='1') {
                         CargusAWB::send_mails($order_id, $awb, $awbsDetails['Recipient']['Email']);
                     }
                     
                     update_post_meta($order_id, 'awb_urgent_cargus', $awb);
                     do_action( 'safealternative_awb_generated', 'UrgentCargus', $awb , $order_id);
-
-                    $account_status_response = $courier->callMethod(SAFEALTERNATIVE_API_URL."/shipping/urgentcargus/newAccountStatus/" . $user_safealternative . "/" . $password_safealternative . "/" . $UserName . "/" . $Password, '', 'POST');
-                    $account_status = json_decode($account_status_response['message']);
-
-                    if($account_status->show_message){
-                        set_transient( 'urgent_account_status', $account_status->message, MONTH_IN_SECONDS );
-                    } else {
-                        delete_transient( 'urgent_account_status' );
-                    }                       
+                     
                 }
             }            
         } 
