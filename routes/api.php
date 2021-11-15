@@ -6,6 +6,7 @@ use App\Http\Controllers\API\AuthApiController;
 
 use App\Http\Controllers\API\FanController;
 use App\Http\Controllers\API\CargusController;
+use App\Http\Controllers\API\NemoController;
 
 use App\Http\Controllers\API\PluginController;
 
@@ -42,6 +43,11 @@ Route::group(['middleware' => 'auth:sanctum'], function(){
         Route::post('cargus/printAwb', [CargusController::class, 'printAwb']);
         Route::post('cargus/deleteAwb', [CargusController::class, 'deleteAwb']);
         Route::post('cargus/pickupLocations', [CargusController::class, 'pickupLocations']);  
+
+
+        Route::post('nemo/validateAuth', [NemoController::class, 'validateAuth']);
+        Route::post('nemo/generateAwb', [NemoController::class, 'generateAwb']);    
+       
 
     });
 
