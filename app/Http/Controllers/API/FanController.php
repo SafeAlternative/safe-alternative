@@ -165,7 +165,7 @@ class FanController extends Controller
 
             return response([
                 'success'   => 1,
-                'message'   => $response_list[2] .$userId,
+                'message'   => $response_list[2] ,
             ], 200);
         }
         return response([

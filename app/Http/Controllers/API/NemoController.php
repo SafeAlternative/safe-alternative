@@ -64,9 +64,9 @@ class NemoController extends Controller
     ////////////////////////////////////////////////////////////
     public function generateAwb(Request $request) {
         
-        $api_key = $request->api_key;
-        $api_url = 'https://app.nemoexpress.ro/nemo/API/create_awb?api_key='.$api_key;
+        $api_url = 'https://app.nemoexpress.ro/nemo/API/create_awb';
 
+        $awb['api_key']         = $request->api_key;
         $awb['type']            = $request->type;
         $awb['service_type']    = $request->service_type;
         $awb['cnt']             = $request->cnt;
@@ -102,7 +102,7 @@ class NemoController extends Controller
 
 
 
-        $response = Http::post($api_url, $awb);
+        $response = Http::get($api_url, $awb);
 
         if($response->status()==200) {
 
