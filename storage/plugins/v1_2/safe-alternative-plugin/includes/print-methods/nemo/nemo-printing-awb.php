@@ -1,7 +1,6 @@
 <?php
 
-$dir = plugin_dir_path(__FILE__);
-include_once($dir.'courier.class.php');
+include_once(plugin_dir_path(__FILE__).'courierNemo.class.php');
 
 class NemoAWB 
 {
@@ -12,11 +11,6 @@ class NemoAWB
         add_action( 'add_meta_boxes', array( $this, 'nemo_add_meta_box' ) );
         add_action( 'admin_init', array( $this, 'add_register_setting' ));
         
-        add_action('admin_notices', array(
-            $this,
-            'show_account_status_nag'
-        ), 10);
-
         add_action( 'woocommerce_order_status_changed', array(
             $this,
             'autogenerate_nemo_awb'
@@ -105,29 +99,6 @@ class NemoAWB
         require_once(plugin_dir_path(__FILE__) . '/templates/default-email-template.php');
     }
 
-    function show_account_status_nag()
-    {
-        global $wp;
-        $qv = $wp->query_vars['post_type'] ?? NULL;
-
-        if (($message_status = get_transient('nemo_account_status')) && $qv === "shop_order") {
-            ?>
-            <div class="notice notice-warning">
-                <p><?php _e($message_status, 'safealternative-nemo-woocommerce'); ?></p>
-            </div>
-            <?php
-        }
-
-        if (($message_settings = get_transient('nemo_account_settings'))) {
-            ?>
-            <div class="notice notice-warning">
-                <p><?php _e($message_settings, 'safealternative-nemo-woocommerce'); ?></p>
-            </div>
-            <?php
-            delete_transient('nemo_account_settings');
-        }    
-    }
-
     function nemo_plugin_page() 
     {
         require_once(plugin_dir_path(__FILE__) . '/templates/settings-page.php');
@@ -172,7 +143,7 @@ class NemoAWB
         $weight = round($weight);
 
         if( empty(get_option('nemo_key')) ) { 
-            echo '<div class="wrap"><h1>SafeAlternative Nemo AWB</h2><br><h2>Plugin-ul SafeAlternative Nemo AWB nu a fost configurat.</h2> Va rugam dati click <a href="'.safealternative_redirect_url('admin.php?page=nemo-plugin-setting').'"> aici</a> pentru a il configura.</div>';
+            echo '<div class="wrap"><h1>Safe Alternative Nemo AWB</h2><br><h2>Plugin-ul Safe Alternative Nemo AWB nu a fost configurat.</h2> Va rugam dati click <a href="'.safealternative_redirect_url('admin.php?page=nemo-plugin-setting').'"> aici</a> pentru a il configura.</div>';
             exit;
         }
 
@@ -336,7 +307,7 @@ class NemoAWB
         $weight = round($weight);
 
         if( empty(get_option('nemo_key')) ) { 
-            echo '<div class="wrap"><h1>SafeAlternative Nemo AWB</h2><br><h2>Plugin-ul SafeAlternative Nemo AWB nu a fost configurat.</h2> Va rugam dati click <a href="'.safealternative_redirect_url('admin.php?page=nemo-plugin-setting').'"> aici</a> pentru a il configura.</div>';
+            echo '<div class="wrap"><h1>Safe Alternative Nemo AWB</h2><br><h2>Plugin-ul Safe Alternative Nemo AWB nu a fost configurat.</h2> Va rugam dati click <a href="'.safealternative_redirect_url('admin.php?page=nemo-plugin-setting').'"> aici</a> pentru a il configura.</div>';
             exit;
         }
 
@@ -350,7 +321,7 @@ class NemoAWB
         $postcode = $order->get_shipping_postcode() ?: safealternative_get_post_code($recipient_address_state_id, $recipient_address_city_id);
         $observation = get_option('nemo_observation');
 
-        $awb_info = [
+        $awb_details = [
             'type' => get_option('nemo_package_type'),
             'service_type' => get_option('nemo_service'),
             'cnt' => get_option('nemo_parcel_count'),
@@ -385,44 +356,34 @@ class NemoAWB
             'comments' => $observation,
         ];       
          
-        $awb_info = apply_filters('safealternative_awb_details', $awb_info, 'Nemo', $order);
+        $awb_details = apply_filters('safealternative_awb_details', $awb_details, 'Nemo', $order);
 
-        $courier = new SafealternativeNemoClass();
+        
+        $awb_details['api_key'] = get_option('nemo_key');;
+        $awb_details['token'] = get_option('token');
 
-        if($awb_info['retur'] == 'false'){
-            unset($awb_info['retur_type']);
+        if($awb_details['retur'] == 'false'){
+            unset($awb_details['retur_type']);
         }
+        
+        $courier  = new CourierNemoSafe();
+        $response = $courier->callMethod("generateAwb", $awb_details, 'POST');
 
-        $result = $courier->callMethod("generateAwb", $awb_info, 'POST');
 
-        if ($result['status']!="200") {
-            set_transient('nemo_account_settings', json_decode($result['message']), MONTH_IN_SECONDS);
-        } else {
-            $message = json_decode($result['message']);
-            
-            if ( !empty($message->error) ) {
-                set_transient('nemo_account_settings', 'NemoExpress AWB: ' . $message->error, MONTH_IN_SECONDS);
-            } else {
-                $awb = $message->awb;
-                
-                if ($trimite_mail=='da') {
-                    NemoAWB::send_mails($order_id, $awb, $awb_info['recipient_email']);
-                }
-                
-                update_post_meta($order_id, 'awb_nemo', $awb);
-                update_post_meta($order_id, 'awb_nemo_status', 'Inregistrat');
-                do_action('safealternative_awb_generated', 'Nemo', $awb);
 
-                $account_status_response = $courier->callMethod("newAccountStatus", [], 'POST');
-                $account_status = json_decode($account_status_response['message']);
-
-                if($account_status->show_message){
-                    set_transient( 'nemo_account_status', $account_status->message, MONTH_IN_SECONDS );
-                } else {
-                    delete_transient( 'nemo_account_status' );
-                }                       
+        if ($response['status'] == 200) {
+            if (!$response['success']) wp_die($response['error']);
+        
+            $awb = $response['message'];
+        
+            if ($trimite_mail=='da') {
+                NemoAWB::send_mails($order_id, $awb, $awb_details);
             }
-        }            
+            
+            update_post_meta($order_id, 'awb_nemo', $awb);
+            update_post_meta($order_id, 'awb_nemo_status', 'Inregistrat');
+            do_action('curiero_awb_generated', 'Nemo', $awb);
+        }      
 	}// end function
  
     static public function send_mails($idOrder, $awb, $receiver_email) 
@@ -485,7 +446,7 @@ class NemoAWB
 }
 // end class
 
-require_once(plugin_dir_path(__FILE__) . '/nemo.class.php');
+require_once(plugin_dir_path(__FILE__) . '/courierNemo.class.php');
 require_once(plugin_dir_path(__FILE__) . '/cron.php');
 
 //Bulk generate

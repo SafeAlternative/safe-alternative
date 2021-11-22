@@ -4,7 +4,7 @@
  * Plugin Name: Safe Alternative
  * Plugin URI: https://safe-alternative.ro
  * Description: Plugin-ul Safe Alternative All-in-one - Generare AWB si Metode de livrare
- * Version: 2.15.6
+ * Version: 2.15.5
  * Author: Safe Alternative
  * Author URI: https://safe-alternative.ro
  * WC requires at least: 3.0.0
